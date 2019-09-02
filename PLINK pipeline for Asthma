@@ -1,5 +1,0 @@
-```PLINK QC pipeline```
-
-plink --noweb --bfile inputfile --remove removeme.txt --make-bed --out outputfile
-
-# basic command if all genotype data is in one file

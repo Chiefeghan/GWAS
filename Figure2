@@ -1,1 +1,191 @@
 
+---
+title: "Manuscript Figure2&3"
+author: "Chief Ben-Eghan"
+date: "16/10/2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+Load the required packages
+
+
+```{r}
+library(dplyr)
+library(data.table)
+library(ggplot2)
+library(ggalluvial)
+library(alluvial)
+library(ggpubr)
+library(grid)
+library(reshape2)
+library(grid)
+library(devtools)
+source_gist("524eade46135f6348140")
+library(ggpmisc)
+library(cowplot)
+```
+
+#After LD clumping, match index GWS snps from EUR in AFR and ASN- Eosinophil cell count 
+
+#Load files for AFR and ASN
+
+```{r}
+df_AFReos=fread("~/Desktop/Manuscript Latex/dfAFREOS") 
+df_ASNeos=fread("~/Desktop/Manuscript Latex/dfASNEOS")  
+
+#filter out variants which have SE lower than 0.02 in non-European population
+df_AFReos=subset(df_AFReos,df_AFReos$SE>0.02)
+df_ASNeos=subset(df_ASNeos,df_ASNeos$SE>0.02)
+
+#Identify markers that replicated at p<0.05
+df_AFReos_rep=subset(df_AFReos, df_AFReos$P<0.05) 
+df_ASNeos_rep=subset(df_ASNeos, df_ASNeos$P<0.05) 
+```
+
+
+
+
+# % of markers that replicated in each df
+
+```{r}
+replicated_AFReos=nrow(df_AFReos_rep)/nrow(df_AFReos) *100
+replicated_ASNeos=nrow(df_ASNeos_rep)/nrow(df_ASNeos) *100
+
+replicated_AFReos  
+replicated_ASNeos
+
+# Estimate the correlation coefficient (r)
+corAFReos=cor(df_AFReos$EUR_BETA, df_AFReos$BETA, method=c("pearson"))
+corASNeos=cor(df_ASNeos$EUR_BETA, df_ASNeos$BETA, method=c("pearson"))
+
+corAFReos
+corASNeos 
+```
+
+
+ #8 Highlight markers with inconsistent effect sizes 
+```{r}
+df_ASNeos_rep_red=df_ASNeos_rep[13,]
+df_AFReos_rep_red=df_AFReos_rep[c(10,12,17), ]
+```
+
+
+
+```{r}
+
+# Test for unequal variences in Y
+asn_lm=lm(df_ASNeos$BETA~df_ASNeos$EUR_BETA, 
+             weights = 1/(df_ASNeos$SE^2))
+
+afr_lm=lm(df_AFReos$BETA~df_AFReos$EUR_BETA, 
+             weights = 1/(df_AFReos$SE^2))
+
+
+## checking the slope
+summary(asn_lm)  
+summary(afr_lm)  
+coefdfASN=coef(asn_lm)[2]
+coefdfAFR=coef(afr_lm)[2]
+
+
+###checking the confidence interval 
+
+confint(asn_lm, level=0.95)  
+confint(afr_lm, level=0.95)  
+```
+
+
+##plot for ASN
+```{r}
+
+rg = 0.22
+ASN_eosnew=ggplot(data=df_ASNeos, aes(x=df_ASNeos$EUR_BETA, y=df_ASNeos$BETA))+
+  geom_errorbarh(aes(xmax=pmin(df_ASNeos$EUR_BETA+df_ASNeos$EUR_SE,rg), 
+                     xmin=pmax(df_ASNeos$EUR_BETA-df_ASNeos$EUR_SE,-rg)),alpha=0.6, 
+                 colour="grey")+
+  geom_abline(slope=0.97,  color="#E69F00", size=2)+
+  geom_abline(slope=1,intercept=0,color="grey",size=1.5, linetype="dotted")+
+  geom_errorbar(aes(ymax=pmin(df_ASNeos$BETA+df_ASNeos$SE,rg), 
+                    ymin=pmax(df_ASNeos$BETA-df_ASNeos$SE,-rg)),alpha=0.6, 
+                colour="grey")+
+  geom_point(alpha=1, size=7)+
+  geom_point(data=df_ASNeos_rep, aes(x=df_ASNeos_rep$EUR_BETA, y=df_ASNeos_rep$BETA), 
+             colour="#56B4E9", size=7) +
+  theme_classic() +
+  geom_hline(yintercept=0, color="black")+
+  geom_vline(xintercept = 0, color="black")+
+  labs(x=expression(paste(beta, " White British")), 
+       y=expression(paste(beta, " Asian / Asian British & Chinese")))+
+  theme(axis.text=element_text(size=49),
+        axis.title=element_text(size=49,face="bold"),
+        axis.title.y = element_text(size = 49))+
+  scale_x_continuous(limits=c(-rg,rg), expand=c(0,0))+
+  scale_y_continuous(limits=c(-rg,rg), expand=c(0,0))+
+  geom_point(data=df_ASNeos_rep_red, aes(x=df_ASNeos_rep_red$EUR_BETA, 
+                                         y=df_ASNeos_rep_red$BETA), 
+             colour="#FF0033", size=7)+
+  annotate(geom="text", x=-0.18, y=0.1, label="Inconsistent\neffect",
+           color="black", size=12, hjust=0)+
+  annotate(geom="text", x=-0.09, y=-0.16, label="Replicated\neffect",
+           color="black", size=12, hjust=0)+
+  annotate(geom="text", x=0.16, y=0.08, label="Regression \n slope = 0.97",
+           color="black", size=12)+
+  geom_segment(aes(x =-0.1, y =0.097, xend =-0.0187358, yend =0.0605952), colour="#FF0033")
+
+
+ASN_eosnew
+
+pdf("~/Desktop/Manuscript Latex/Figure2ASN.pdf", 16.5, 11.5)
+plot(ASN_eosnew)
+dev.off()
+```
+
+```{r}
+rg = 0.22
+AFR_eosnew=ggplot(data=df_AFReos, aes(x=df_AFReos$EUR_BETA, y=df_AFReos$BETA))+
+  geom_errorbarh(aes(xmax=pmin(df_AFReos$EUR_BETA+df_AFReos$EUR_SE,rg), 
+                     xmin=pmax(df_AFReos$EUR_BETA-df_AFReos$EUR_SE,-rg)),alpha=0.6, 
+                 colour="grey")+
+  geom_abline(slope=0.63,  color="#E69F00", size=2)+
+  geom_abline(slope=1,intercept=0,color="grey",size=1.5, linetype='dotted')+
+  geom_errorbar(aes(ymax=pmin(df_AFReos$BETA+df_AFReos$SE,rg), 
+                    ymin=pmax(df_AFReos$BETA-df_AFReos$SE,-rg)),alpha=0.6, 
+                colour="grey")+
+  geom_point(alpha=1, size=7)+
+  geom_point(data=df_AFReos_rep, aes(x=df_AFReos_rep$EUR_BETA, y=df_AFReos_rep$BETA), 
+             colour="#56B4E9", size=7) +
+  theme_classic()+
+  geom_hline(yintercept=0, color="black")+
+  geom_vline(xintercept = 0, color="black")+
+  labs(x=expression(paste(beta, " White British")), 
+       y=expression(paste(beta, " Black / Black British")))+
+  theme(axis.text=element_text(size=49),
+        axis.title=element_text(size=49,face="bold"))+
+  scale_x_continuous(limits=c(-rg,rg), expand=c(0,0))+
+  scale_y_continuous(limits=c(-rg,rg), expand=c(0,0))+
+  geom_point(data=df_AFReos_rep_red, aes(x=df_AFReos_rep_red$EUR_BETA, 
+                                         y=df_AFReos_rep_red$BETA), 
+             colour="#FF0033", size=7)+
+  annotate(geom="text", x=0.16, y=0.05, label="Regression \n slope = 0.63",
+           color="black", size=12)
+
+
+AFR_eosnew
+
+
+pdf("~/Desktop/Manuscript Latex/Figure2AFR.pdf", 16.5, 11.5)
+plot(AFR_eosnew)
+dev.off()
+```
+
+
+
+
+
+
+

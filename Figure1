@@ -31,7 +31,7 @@ library(cowplot)
 
 
 #Load input files 
-#Split input file into 4 separate dataframes for each group.
+#Split input file into 5 separate dataframes for each group.
 ```{r}
 dfFig1=read.csv("~/Desktop/Manuscript Latex/df_figNEW3.csv")
 names(dfFig1)[names(dfFig1)=="Population"]<-"Populations"

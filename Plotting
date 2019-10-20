@@ -1,1 +1,236 @@
 
+---
+title: Figure1-Manuscript-Representation bias in genomics is compounded by filtering.
+  in analysis pipelines.
+author: "Chief Ben-Eghan"
+date: "19/10/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# R Markdown
+Load the required packages
+```{r}
+library(dplyr)
+library(data.table)
+library(ggplot2)
+library(ggalluvial)
+library(alluvial)
+library(ggpubr)
+library(grid)
+library(reshape2)
+library(grid)
+library(devtools)
+source_gist("524eade46135f6348140")
+library(ggpmisc)
+library(cowplot)
+```
+
+
+#Load input files 
+#Split input file into 4 separate dataframes for each group.
+```{r}
+dfFig1=read.csv("~/Desktop/Manuscript Latex/df_figNEW3.csv")
+names(dfFig1)[names(dfFig1)=="Population"]<-"Populations"
+df1=subset(dfFig1, dfFig1$POP=="GLOBAL")
+df2=subset(dfFig1, dfFig1$POP=="UK-2001")
+df3=subset(dfFig1, dfFig1$POP=="UK-2011")
+df4=subset(dfFig1, dfFig1$POP=="UKB")
+df5=dfFig1[c(22:26),]
+```
+
+
+#Order the colours and Population IDs to be used in the plot for df1 (Global).
+```{r}
+col=c("#FF3366", "#0099FF", "#FFFF99",  "#CCFFCC", "#FFCCFF", "#000000")
+orderlistdf1=c("European","South & East Asian","African","Hispanic/Latino","Greater Middle Eastern","Oceanic")
+df1$Populations=factor(df1$Populations, levels=orderlistdf1)
+```
+
+
+#Plot for Global.
+```{r}
+Global=ggplot(data = df1, aes(x = Populations, y = Proportions, fill = Populations)) + 
+  geom_bar(stat = "identity", width = 0.9)+
+  theme(panel.spacing = unit(0, "lines"), 
+        strip.background = element_blank(),
+        strip.placement = "outside") + 
+  xlab("")+coord_flip()+scale_x_discrete(limits = rev(levels(df1$Populations)))+theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  theme(legend.position = "none")+
+  theme(axis.ticks=element_blank())+
+  scale_fill_manual(values=col)+
+  theme(axis.text.x=element_blank(),axis.title.x=element_blank(),
+        panel.background = element_rect(fill="white"),  
+        panel.border = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.line=element_blank())+
+  theme(axis.text=element_text(size=20),axis.title=element_text(size=30,face="plain"))+
+  theme(strip.text.x = element_text(size=20,face="plain"))+labs(x="  Global", face="bold")+
+  ylim(0,100)+
+  geom_hline(yintercept = 100, linetype="dashed", colour="blue")+
+  geom_col(position = position_dodge2(width = 0.9, preserve = "single"))
+Global
+```
+
+
+#Order the colours and Population IDs to be used in the plot for df2 (UK2001).
+```{r}
+orderlistdf2=c("White ","Asian/Asian British & Chinese","Black/Black British","Mixed ancestry", "Other Ethnic group")
+df2$Populations=factor(df2$Populations, levels=orderlistdf2)
+col2=c("#FF3366", "#0099FF", "#FFFF66", "#FF9933", "#999999")
+```
+
+
+#Plot for UK2001.
+```{r}
+UK2001=ggplot(data = df2, aes(x = Populations, y = Proportions, fill = Populations)) + 
+  geom_bar(stat = "identity", width = 0.9)+
+  theme(panel.spacing = unit(0, "lines"), 
+        strip.background = element_blank(),
+        strip.placement = "outside") + 
+  xlab("")+coord_flip()+scale_x_discrete(limits = rev(levels(df2$Populations)))+theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  theme(legend.position = "none")+
+  theme(axis.ticks=element_blank())+
+  scale_fill_manual(values=col2)+
+  theme(axis.text.x=element_blank(),axis.title.x=element_blank(),
+        panel.background = element_rect(fill="white"),  
+        panel.border = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.line=element_blank())+
+  theme(axis.text=element_text(size=20),axis.title=element_text(size=30,face="plain"))+
+  theme(strip.text.x=element_text(size=20,face="plain"))+labs(x="UK-2001",face="bold")+
+  ylim(0,100)+
+  geom_hline(yintercept = 100, linetype="dashed", colour="blue")+
+  geom_col(position = position_dodge2(width = 0.9, preserve = "single"))
+UK2001
+```
+
+
+#Order the colours and Population IDs to be used in the plot for df3 (UK2011).
+```{r}
+orderlistdf3=c("White ","Asian/Asian British & Chinese","Black/Black British","Mixed ancestry", "Other Ethnic group")
+df3$Populations=factor(df3$Populations, levels=orderlistdf3)
+col2=c("#FF3366", "#0099FF", "#FFFF66", "#FF9933", "#999999")
+```
+
+
+
+#Plot for UK2011
+```{r}
+UK2011=ggplot(data = df3, aes(x = Populations, y = Proportions, fill = Populations)) + 
+  geom_bar(stat = "identity", width = 0.9)+
+  theme(panel.spacing = unit(0, "lines"), 
+        strip.background = element_blank(),
+        strip.placement = "outside") + 
+  xlab("")+coord_flip()+scale_x_discrete(limits = rev(levels(df3$Populations)))+theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  theme(legend.position = "none")+
+  theme(axis.ticks=element_blank())+
+  scale_fill_manual(values=col2)+
+  theme(axis.text.x=element_blank(),axis.title.x=element_blank(),
+        panel.background = element_rect(fill="white"),  
+        panel.border = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.line=element_blank())+
+  theme(axis.text=element_text(size=20),axis.title=element_text(size=30,face="plain"))+
+  theme(strip.text.x = element_text(size=20,face="plain"))+labs(x="  UK-2011", face="bold")+
+  ylim(0,100)+
+  geom_hline(yintercept = 100, linetype="dashed", colour="blue")+
+  geom_col(position = position_dodge2(width = 0.9, preserve = "single"))
+UK2011
+```
+
+
+
+
+#Order the colours and Population IDs to be used in the plot for df4 (UKB).
+```{r}
+orderlistdf4=c("White ","Asian/Asian British & Chinese","Black/Black British","Mixed ancestry", "Other Ethnic group")
+df4$Populations=factor(df4$Populations, levels=orderlistdf4)
+col2=c("#FF3366", "#0099FF", "#FFFF66", "#FF9933", "#999999")
+```
+
+#Plot for UKB
+```{r}
+UKB=ggplot(data = df4, aes(x = Populations, y = Proportions, fill = Populations)) + 
+  geom_bar(stat = "identity", width = 0.9)+
+  theme(panel.spacing = unit(0, "lines"), 
+        strip.background = element_blank(),
+        strip.placement = "outside") + 
+  xlab("")+coord_flip()+scale_x_discrete(limits = rev(levels(df4$Populations)))+theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  theme(legend.position = "none")+
+  theme(axis.ticks=element_blank())+
+  scale_fill_manual(values=col2)+
+  theme(axis.text.x=element_blank(),axis.title.x=element_blank(),
+        panel.background = element_rect(fill="white"),  
+        panel.border = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.line=element_blank())+
+  theme(axis.text=element_text(size=20),axis.title=element_text(size=30,face="plain"))+
+  theme(strip.text.x = element_text(size=20,face="plain"))+labs(x="      UKB")+
+  ylim(0,100)+
+  geom_hline(yintercept = 100, linetype="dashed", colour="blue")+
+  geom_col(position = position_dodge2(width = 0.9, preserve = "single"))
+UKB
+```
+
+
+#Order the colours and Population IDs to be used in the plot for df5 (UKB Analysis).
+```{r}
+orderlistdf5=c("White ","Asian/Asian British & Chinese","Black/Black British","Mixed ancestry", "Other Ethnic group")
+df5$Populations=factor(df5$Populations, levels=orderlistdf5)
+col2=c("#FF3366", "#0099FF", "#FFFF66", "#FF9933", "#999999")
+```
+
+
+#Plot for UKB Analysis.
+```{r}
+UKBAnalysis=ggplot(data = df5, aes(x = Populations, y = Proportions, fill = Populations)) + 
+  geom_bar(stat = "identity", width = 1.2,position = position_dodge(width=0.2))+
+  theme(panel.spacing = unit(0, "lines"), 
+        strip.background = element_blank(),
+        strip.placement = "outside") + 
+  xlab("")+coord_flip()+scale_x_discrete(limits = rev(levels(df5$Populations)))+theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  theme(legend.position = "none")+
+  theme(axis.ticks=element_blank())+
+  scale_fill_manual(values=col2)+
+  theme(axis.text.x=element_blank(),axis.title.x=element_blank(),
+        panel.background = element_rect(fill="white"),  
+        panel.border = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.line=element_blank())+
+  theme(axis.text=element_text(size=20),axis.title=element_text(size=30,face="plain"))+
+  theme(strip.text.x = element_text(size=20,face="plain"))+labs(x="UKB Analysis")+
+  ylim(0,100)+theme(axis.text.x = element_text( hjust = 0.5))+
+  theme(axis.line.x = element_line(size = 1, colour = "black"))+
+  geom_hline(yintercept = 100, linetype="dashed", colour="blue")+
+  labs(y="Proportions")+theme(axis.title.x =element_text(size=30,face="plain"))
+  geom_col(position = position_dodge2(width = 0.9, preserve = "single"))
+UKBAnalysis
+```
+
+
+#Combine all plots into 1 Figure.
+```{r}
+combined=plot_grid(Global, UK2011, UK2001, UKB, UKBAnalysis, nrow=5, ncol=1, align="v")
+combined
+```
+
+#Plot Figure 1
+```{r}
+
+pdf("~/Desktop/Manuscript Latex/Figure1newS.pdf", 16.5,11.5)
+plot(combined)
+dev.off()
+```
+
+
+
+

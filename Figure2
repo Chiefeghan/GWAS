@@ -30,7 +30,7 @@ library(ggpmisc)
 library(cowplot)
 ```
 
-#After LD clumping, match index GWS snps from EUR in AFR and ASN- Eosinophil cell count 
+#After prioritizing SNPs using FUMA, match top lead GWAS SNPs from EUR in AFR and ASN- Eosinophil cell count 
 
 #Load files for AFR and ASN
 

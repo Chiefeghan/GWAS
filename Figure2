@@ -78,7 +78,7 @@ df_AFReos_rep_red=df_AFReos_rep[c(10,12,17), ]
 
 ```{r}
 
-# Test for unequal variences in Y
+# Test for unequal variances in Y
 asn_lm=lm(df_ASNeos$BETA~df_ASNeos$EUR_BETA, 
              weights = 1/(df_ASNeos$SE^2))
 
